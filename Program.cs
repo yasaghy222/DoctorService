@@ -1,4 +1,7 @@
 ﻿
+using DoctorService.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace DoctorService;
 
 public class Program
@@ -13,6 +16,9 @@ public class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        builder.Services.AddDbContext<DoctorServiceContext>(options => options.UseSqlServer(connectionString));
 
         var app = builder.Build();
 
