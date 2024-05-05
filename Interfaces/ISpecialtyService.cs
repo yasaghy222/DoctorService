@@ -1,8 +1,11 @@
-﻿using DoctorService.Entities;
+﻿using DoctorService.DTOs;
+using DoctorService.Models;
 
-namespace DoctorService;
+namespace DoctorService.Interfaces;
 
 public interface ISpecialtyService
 {
-	IEnumerable<Specialty> GetAll();
+	Task<Result> GetAll();
+	Task<Result> Add(SpecialtyDto model);
+	Task<Result> Edit(SpecialtyDto model);
 }

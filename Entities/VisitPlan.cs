@@ -7,4 +7,6 @@ public class VisitPlan : BaseEntity
 
 	public Guid DoctorId { get; set; }
 	public required Doctor Doctor { get; set; }
+
+	public VisitPlanStatus Status { get; set; } = VisitPlanStatus.Active;
 }
