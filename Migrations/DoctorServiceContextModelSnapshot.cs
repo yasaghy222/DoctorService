@@ -72,6 +72,9 @@ namespace DoctorService.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("EmailValidate")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Family")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -84,6 +87,9 @@ namespace DoctorService.Migrations
 
                     b.Property<bool>("HasTextCounseling")
                         .HasColumnType("bit");
+
+                    b.Property<byte>("LineStatus")
+                        .HasColumnType("tinyint");
 
                     b.Property<int>("MedicalSysCode")
                         .HasColumnType("int");
@@ -98,6 +104,9 @@ namespace DoctorService.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("PhoneValidate")
+                        .HasColumnType("bit");
+
                     b.Property<float>("Rate")
                         .HasColumnType("real");
 
@@ -107,9 +116,14 @@ namespace DoctorService.Migrations
                     b.Property<Guid>("SpecialtyId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte>("Status")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int>("SuccessConsolationCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SuccessReservationCount")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -117,7 +131,7 @@ namespace DoctorService.Migrations
 
                     b.HasIndex("SpecialtyId");
 
-                    b.ToTable("Providers");
+                    b.ToTable("Doctors");
                 });
 
             modelBuilder.Entity("DoctorService.Entities.Location", b =>
@@ -228,6 +242,9 @@ namespace DoctorService.Migrations
 
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time");
+
+                    b.Property<byte>("Status")
+                        .HasColumnType("tinyint");
 
                     b.HasKey("Id");
 
