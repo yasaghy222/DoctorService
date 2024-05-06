@@ -9,12 +9,15 @@ public static class MapsterConfig
 {
 	public static void RegisterMapsterConfiguration(this IServiceCollection services)
 	{
-		TypeAdapterConfig<Specialty, SpecialtyDto>.NewConfig().Map(dto => dto.DoctorIds,
+		TypeAdapterConfig<Specialty, SpecialtyInfo>.NewConfig().Map(dto => dto.DoctorIds,
 			s => s.Doctors == null ? null : s.Doctors.Select(d => d.Id).ToArray());
+
+
+		TypeAdapterConfig<Doctor, DoctorDetail>.NewConfig().Map(dto => dto.SpecialtyTitle,
+			s => s.Specialty.Title);
 
 		TypeAdapterConfig<Doctor, DoctorInfo>.NewConfig().Map(dto => dto.SpecialtyTitle,
 			s => s.Specialty.Title);
-
 
 		TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());
 	}

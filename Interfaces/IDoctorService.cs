@@ -9,8 +9,11 @@ namespace MedicalHealthPlus.Interfaces;
 public interface IDoctorService
 {
 	Task<Result> GetInfo(Guid id);
+	Task<Result> GetDetail(Guid id);
+
+	Task<Result> GetAllRecommends();
 	Task<Result> GetAllInfo(DoctorFilterDto model);
-	Task<Result> GetRecommendedDoctors();
+	Task<Result> GetAllDetails(DoctorFilterDto model);
 
 	Task<Result> Add(AddDoctorDto model);
 	Task<Result> Edit(EditDoctorDto model);

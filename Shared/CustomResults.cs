@@ -14,13 +14,24 @@ public class CustomResults
 		Data = data
 	};
 
+	public static Result SuccessDelete(object data = null) => new()
+	{
+		Message = new()
+		{
+			Fa = "عملیات حذف با موفقیت انجام شد",
+			En = "Delete Operation is Success"
+		},
+		StatusCode = StatusCodes.Status204NoContent,
+		Data = data
+	};
+
 
 	public static Result SuccessCreation(object data) => new()
 	{
 		Message = new()
 		{
 			Fa = "عملیات ایجاد داده با موفقیت انجام شد",
-			En = "Creation Operation is Success"
+			En = "Create Operation is Success"
 		},
 		StatusCode = StatusCodes.Status201Created,
 		Data = data

@@ -38,8 +38,6 @@ public class ClinicService(DoctorServiceContext context,
 		}
 	}
 
-
-
 	public async Task<Result> Edit(ClinicDto model)
 	{
 		ValidationResult validationResult = _dataValidator.Validate(model);

@@ -1,4 +1,5 @@
 ﻿using DoctorService.Data;
+using DoctorService.DTOs;
 using DoctorService.Entities;
 using DoctorService.Interfaces;
 using DoctorService.Models;
@@ -22,8 +23,7 @@ public class OnlinePlanService(DoctorServiceContext context,
 		if (isDoctorExist)
 			return CustomErrors.NotFoundData();
 
-		List<OnlinePlan> onlinePlans = _context.OnlinePlans.Where(vp => vp.DoctorId == doctorId)
-														   .ToList();
+		List<OnlinePlan> onlinePlans = await _context.OnlinePlans.Where(vp => vp.DoctorId == doctorId).ToListAsync();
 
 		return CustomResults.SuccessOperation(onlinePlans.Adapt<List<OnlinePlanDto>>());
 	}
@@ -64,6 +64,8 @@ public class OnlinePlanService(DoctorServiceContext context,
 
 		try
 		{
+			_context.Entry(oldData).State = EntityState.Detached;
+
 			OnlinePlan onlinePlan = model.Adapt<OnlinePlan>();
 			_context.OnlinePlans.Update(onlinePlan);
 
@@ -88,7 +90,7 @@ public class OnlinePlanService(DoctorServiceContext context,
 			_context.VisitPlans.Remove(visitPlan);
 			await _context.SaveChangesAsync();
 
-			return CustomResults.SuccessOperation();
+			return CustomResults.SuccessDelete();
 		}
 		catch (Exception e)
 		{

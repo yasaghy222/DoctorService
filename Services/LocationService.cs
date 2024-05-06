@@ -63,6 +63,8 @@ public class LocationService(DoctorServiceContext context,
 
 		try
 		{
+			_context.Entry(oldData).State = EntityState.Detached;
+
 			Location location = model.Adapt<Location>();
 			_context.Locations.Update(location);
 

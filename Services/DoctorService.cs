@@ -22,21 +22,40 @@ public class DoctorService(DoctorServiceContext context,
 	private readonly IValidator<AddDoctorDto> _addValidator = addValidator;
 	private readonly IValidator<EditDoctorDto> _editValidator = editValidator;
 
-	public async Task<Result> GetInfo(Guid id)
+	private async Task<Result> Get(Guid id)
 	{
-		Doctor? doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.Id == id &&
-																		 d.Status == DoctorStatus.Confirmed);
+		if (id == Guid.Empty)
+			return CustomErrors.InvalidData("Id not Assigned!");
+
+		Doctor? doctor = await _context.Doctors.SingleOrDefaultAsync(d => d.Id == id &&
+																		  													d.Status == DoctorStatus.Confirmed);
 		if (doctor == null)
 			return CustomErrors.NotFoundData();
 
-		DoctorInfo doctorInfo = doctor.Adapt<DoctorInfo>();
+		return CustomResults.SuccessOperation(doctor);
+	}
+	public async Task<Result> GetInfo(Guid id)
+	{
+		Result result = await Get(id);
 
-		return CustomResults.SuccessOperation(doctorInfo);
+		if (result.Status)
+			return CustomResults.SuccessOperation(result.Data.Adapt<DoctorInfo>());
+		else
+			return result;
+	}
+	public async Task<Result> GetDetail(Guid id)
+	{
+		Result result = await Get(id);
+
+		if (result.Status)
+			return CustomResults.SuccessOperation(result.Data.Adapt<DoctorDetail>());
+		else
+			return result;
 	}
 
 	private static DateTime? GetNearestVisitDate(ICollection<VisitPlan>? visitPlans)
 	{
-		if (visitPlans == null)
+		if (visitPlans == null || visitPlans.Count == 0)
 			return null;
 
 		DateTime? dateTime = null;
@@ -49,7 +68,25 @@ public class DoctorService(DoctorServiceContext context,
 
 		return dateTime;
 	}
+	public async Task<Result> GetAllRecommends()
+	{
+		List<RecommendedDoctor> doctors = await _context.Doctors.IgnoreAutoIncludes()
+																												.Include(d => d.Specialty)
+																												.Where(d => d.Status == DoctorStatus.Confirmed)
+																												.Select(d => new RecommendedDoctor
+																												{
+																													Id = d.Id,
+																													FullName = $"{d.Name} {d.Family}",
+																													SpecialtyTitle = d.Specialty.Title,
+																													Rate = d.Rate,
+																													LineStatus = d.LineStatus
+																												})
+																												.OrderByDescending(d => d.Rate)
+																												.Take(6)
+																												.ToListAsync();
 
+		return CustomResults.SuccessOperation(doctors);
+	}
 	public async Task<Result> GetAllInfo(DoctorFilterDto model)
 	{
 		IQueryable<DoctorInfo> query = from doctor in _context.Doctors
@@ -100,30 +137,61 @@ public class DoctorService(DoctorServiceContext context,
 
 		return CustomResults.SuccessOperation(await query.ToListAsync());
 	}
-
-	public async Task<Result> GetRecommendedDoctors()
+	public async Task<Result> GetAllDetails(DoctorFilterDto model)
 	{
-		List<RecommendedDoctor> doctors = await _context.Doctors.Where(d => d.Status == DoctorStatus.Confirmed)
-																.Select(d => new RecommendedDoctor
-																{
-																	Id = d.Id,
-																	FullName = $"{d.Name} {d.Family}",
-																	SpecialtyTitle = d.Specialty.Title,
-																	Rate = d.Rate,
-																	LineStatus = d.LineStatus
-																})
-																.OrderByDescending(d => d.Rate)
-																.Take(6)
-																.ToListAsync();
+		IQueryable<DoctorInfo> query = from doctor in _context.Doctors
+									   select new DoctorInfo
+									   {
+										   Name = doctor.Name,
+										   Family = doctor.Family,
+										   FullName = $"{doctor.Name} {doctor.Family}",
+										   MedicalSysCode = doctor.MedicalSysCode,
+										   Content = doctor.Content,
+										   SpecialtyId = doctor.SpecialtyId,
+										   SpecialtyTitle = doctor.Specialty.Title,
+										   Rate = doctor.Rate,
+										   RaterCount = doctor.RaterCount,
+										   SuccessConsolationCount = doctor.SuccessConsolationCount,
+										   SuccessReservationCount = doctor.SuccessReservationCount,
+										   HasTelCounseling = doctor.HasTelCounseling,
+										   HasTextCounseling = doctor.HasTextCounseling,
+										   OnlinePlans = doctor.OnlinePlans != null ? doctor.OnlinePlans.Adapt<ICollection<OnlinePlanDto>>() : null,
+										   AcceptVisit = doctor.AcceptVisit,
+										   ClinicId = doctor.ClinicId,
+										   Clinic = doctor.Clinic != null ? doctor.Clinic.Adapt<ClinicDto>() : null,
+										   VisitPlans = doctor.VisitPlans != null ? doctor.VisitPlans.Adapt<ICollection<VisitPlanDto>>() : null,
+										   NearestVisitDate = GetNearestVisitDate(doctor.VisitPlans),
+										   LineStatus = doctor.LineStatus
+									   };
+		query = model.ServiceType switch
+		{
+			DoctorServiceType.HasTelCounseling => query.Where(d => d.HasTelCounseling),
+			DoctorServiceType.HasTextCounseling => query.Where(d => d.HasTextCounseling),
+			DoctorServiceType.HasReservation => query.Where(d => d.AcceptVisit),
+			DoctorServiceType.All => query,
+			_ => query
+		};
 
-		return CustomResults.SuccessOperation(doctors);
+		query = model.Order switch
+		{
+			DoctorFilterOrder.NearestReservationTime => query.OrderByDescending(d => d.NearestVisitDate),
+			DoctorFilterOrder.Rate => query.OrderByDescending(d => d.Rate),
+			DoctorFilterOrder.SuccessReservationCount => query.OrderByDescending(d => d.SuccessReservationCount),
+			DoctorFilterOrder.Default => query.OrderBy(d => d.Name),
+			_ => query.OrderBy(d => d.Name)
+		};
+
+		if (model.LocationId != null)
+			query = query.Where(d => d.Clinic != null &&
+								d.Clinic.LocationId == model.LocationId);
+
+		return CustomResults.SuccessOperation(await query.ToListAsync());
 	}
-
 
 	public async Task<Result> Add(AddDoctorDto model)
 	{
 		ValidationResult validationResult = _addValidator.Validate(model);
-		if (validationResult.IsValid)
+		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
 		try
@@ -133,7 +201,7 @@ public class DoctorService(DoctorServiceContext context,
 
 			await _context.SaveChangesAsync();
 
-			return CustomResults.SuccessCreation(doctor.Adapt<DoctorInfo>());
+			return CustomResults.SuccessCreation(doctor.Adapt<DoctorDetail>());
 		}
 		catch (Exception e)
 		{
@@ -144,7 +212,7 @@ public class DoctorService(DoctorServiceContext context,
 	public async Task<Result> Edit(EditDoctorDto model)
 	{
 		ValidationResult validationResult = _editValidator.Validate(model);
-		if (validationResult.IsValid)
+		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
 		Doctor? oldData = await _context.Doctors.SingleOrDefaultAsync(d => d.Id == model.Id);
@@ -153,6 +221,8 @@ public class DoctorService(DoctorServiceContext context,
 
 		try
 		{
+			_context.Entry(oldData).State = EntityState.Detached;
+
 			Doctor doctor = model.Adapt<Doctor>();
 			_context.Doctors.Update(doctor);
 
@@ -165,7 +235,6 @@ public class DoctorService(DoctorServiceContext context,
 			return CustomErrors.InternalServer(e.Message);
 		}
 	}
-
 	public async Task<Result> ChangeStatus(Guid id, DoctorStatus status)
 	{
 		Doctor? oldData = await _context.Doctors.SingleOrDefaultAsync(d => d.Id == id);
@@ -177,6 +246,8 @@ public class DoctorService(DoctorServiceContext context,
 			int effectedRowCount = await _context.Doctors.Where(d => d.Id == id)
 									 					 .ExecuteUpdateAsync(setters => setters.SetProperty(d => d.Status, status));
 
+			await _context.SaveChangesAsync();
+
 			if (effectedRowCount == 1)
 				return CustomResults.SuccessUpdate(oldData.Adapt<DoctorInfo>());
 			else
@@ -187,7 +258,6 @@ public class DoctorService(DoctorServiceContext context,
 			return CustomErrors.InternalServer(e.Message);
 		}
 	}
-
 	public async Task<Result> ChangeLineStatus(Guid id, DoctorLineStatus lineStatus)
 	{
 		Doctor? oldData = await _context.Doctors.SingleOrDefaultAsync(d => d.Id == id);
@@ -199,6 +269,8 @@ public class DoctorService(DoctorServiceContext context,
 			int effectedRowCount = await _context.Doctors.Where(d => d.Id == id)
 									 					 .ExecuteUpdateAsync(setters => setters.SetProperty(d => d.LineStatus, lineStatus));
 
+			await _context.SaveChangesAsync();
+
 			if (effectedRowCount == 1)
 				return CustomResults.SuccessUpdate(oldData.Adapt<DoctorInfo>());
 			else
@@ -209,7 +281,6 @@ public class DoctorService(DoctorServiceContext context,
 			return CustomErrors.InternalServer(e.Message);
 		}
 	}
-
 
 	public void Dispose()
 	{

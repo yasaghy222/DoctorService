@@ -17,7 +17,7 @@ public class AddDoctorValidation : AbstractValidator<AddDoctorDto>
 
 		RuleFor(d => d.Phone).NotEmpty()
 							 .NotNull()
-							 .Matches(@"/((0?9)|(\+?989))\d{2}\W?\d{3}\W?\d{4}/g")
+							 .Matches(@"^(\+98|0)?9\d{9}$")
 							 .WithMessage("شماره وارد شده معتبر نمی باشد!");
 
 

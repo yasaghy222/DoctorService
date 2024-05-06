@@ -22,8 +22,7 @@ public class SpecialtyService(DoctorServiceContext context,
 	public async Task<Result> GetAll()
 	{
 		List<Specialty> Specialties = await _context.Specialties.ToListAsync();
-
-		return CustomResults.SuccessOperation(Specialties.Adapt<List<SpecialtyDto>>());
+		return CustomResults.SuccessOperation(Specialties.Adapt<List<SpecialtyInfo>>());
 	}
 
 
@@ -65,6 +64,8 @@ public class SpecialtyService(DoctorServiceContext context,
 
 		try
 		{
+			_context.Entry(oldData).State = EntityState.Detached;
+
 			Specialty specialty = model.Adapt<Specialty>();
 			_context.Specialties.Update(specialty);
 

@@ -73,6 +73,8 @@ public class VisitPlanService(DoctorServiceContext context,
 
 		try
 		{
+			_context.Entry(oldData).State = EntityState.Detached;
+
 			VisitPlan visitPlan = model.Adapt<VisitPlan>();
 			_context.VisitPlans.Update(visitPlan);
 
@@ -97,7 +99,7 @@ public class VisitPlanService(DoctorServiceContext context,
 			_context.VisitPlans.Remove(visitPlan);
 			await _context.SaveChangesAsync();
 
-			return CustomResults.SuccessOperation();
+			return CustomResults.SuccessDelete();
 		}
 		catch (Exception e)
 		{

@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using DoctorService.DTOs;
+using FluentValidation;
 
 namespace DoctorService.Validations;
 

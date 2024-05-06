@@ -1,6 +1,6 @@
 ﻿using DoctorService.Enums;
 
-namespace DoctorService;
+namespace DoctorService.DTOs;
 
 public class OnlinePlanDto
 {
