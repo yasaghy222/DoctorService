@@ -1,4 +1,6 @@
-﻿namespace DoctorService.Entities;
+﻿using DoctorService.Enums;
+
+namespace DoctorService.Entities;
 public class VisitPlan : BaseEntity
 {
 	public DateOnly Date { get; set; }

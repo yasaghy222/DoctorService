@@ -1,4 +1,6 @@
-﻿namespace DoctorService.DTOs;
+﻿using DoctorService.Enums;
+
+namespace DoctorService.DTOs;
 
 public class VisitPlanDto
 {
