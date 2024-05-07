@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using DoctorService.Data;
+﻿using DoctorService.Data;
 using DoctorService.DTOs;
 using DoctorService.Entities;
 using DoctorService.Enums;
@@ -9,7 +8,6 @@ using FluentValidation;
 using FluentValidation.Results;
 using Mapster;
 using MedicalHealthPlus.Interfaces;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 namespace DoctorService;

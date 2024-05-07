@@ -1,4 +1,4 @@
-﻿namespace DoctorService;
+﻿namespace DoctorService.Enums;
 
 public enum VisitPlanStatus : byte
 {

@@ -81,13 +81,13 @@ public class OnlinePlanService(DoctorServiceContext context,
 
 	public async Task<Result> Delete(Guid Id)
 	{
-		VisitPlan? visitPlan = await _context.VisitPlans.SingleOrDefaultAsync(vp => vp.Id == Id);
-		if (visitPlan == null)
+		OnlinePlan? onlinePlan = await _context.OnlinePlans.SingleOrDefaultAsync(op => op.Id == Id);
+		if (onlinePlan == null)
 			return CustomErrors.NotFoundData();
 
 		try
 		{
-			_context.VisitPlans.Remove(visitPlan);
+			_context.OnlinePlans.Remove(onlinePlan);
 			await _context.SaveChangesAsync();
 
 			return CustomResults.SuccessDelete();
