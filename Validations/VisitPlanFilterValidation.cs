@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using DoctorService.DTOs;
+using FluentValidation;
 
 namespace DoctorService.Validations;
 
@@ -11,7 +12,7 @@ public class VisitPlanFilterValidation : AbstractValidator<VisitPlanFilterDto>
 
 		RuleFor(vpf => vpf.FromDate).NotEmpty()
 									.NotNull()
-									.GreaterThanOrEqualTo(vpf => DateOnly.FromDateTime(DateTime.Now))
+									.GreaterThanOrEqualTo(DateOnly.FromDateTime(DateTime.Now))
 									.WithMessage("تاریخ شروع نمی تواند کمتر از تاریخ امروز باشد!");
 
 		RuleFor(vpf => vpf.FromDate).NotEmpty()
