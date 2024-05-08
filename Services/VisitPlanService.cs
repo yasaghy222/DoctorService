@@ -40,7 +40,7 @@ public class VisitPlanService(DoctorServiceContext context,
 	public async Task<Result> Add(VisitPlanDto model)
 	{
 		ValidationResult validationResult = _dataValidator.Validate(model);
-		if (validationResult.IsValid)
+		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
 		try
@@ -61,7 +61,7 @@ public class VisitPlanService(DoctorServiceContext context,
 	public async Task<Result> Edit(VisitPlanDto model)
 	{
 		ValidationResult validationResult = _dataValidator.Validate(model);
-		if (validationResult.IsValid)
+		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
 		if (model.Id == null)

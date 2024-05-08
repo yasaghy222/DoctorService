@@ -90,6 +90,7 @@ public class DoctorService(DoctorServiceContext context,
 		IQueryable<DoctorInfo> query = from doctor in _context.Doctors
 									   select new DoctorInfo
 									   {
+										   Id = doctor.Id,
 										   Name = doctor.Name,
 										   Family = doctor.Family,
 										   FullName = $"{doctor.Name} {doctor.Family}",

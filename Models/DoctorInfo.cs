@@ -4,6 +4,7 @@ namespace DoctorService.Models;
 
 public class DoctorInfo
 {
+	public Guid Id { get; set; }
 	public string Name { get; set; } = "";
 	public string Family { get; set; } = "";
 	public required string FullName { get; set; }

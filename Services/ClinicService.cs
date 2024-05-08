@@ -20,7 +20,7 @@ public class ClinicService(DoctorServiceContext context,
 	public async Task<Result> Add(ClinicDto model)
 	{
 		ValidationResult validationResult = _dataValidator.Validate(model);
-		if (validationResult.IsValid)
+		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
 		try
@@ -41,7 +41,7 @@ public class ClinicService(DoctorServiceContext context,
 	public async Task<Result> Edit(ClinicDto model)
 	{
 		ValidationResult validationResult = _dataValidator.Validate(model);
-		if (validationResult.IsValid)
+		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
 		if (model.Id == null)
@@ -49,7 +49,7 @@ public class ClinicService(DoctorServiceContext context,
 
 		Clinic? oldData = await _context.Clinics.SingleOrDefaultAsync(c => c.Id == model.Id);
 		if (oldData == null)
-			return CustomErrors.NotFoundData();
+			return CustomErrors.NotFoundData("item not Found!");
 
 		try
 		{

@@ -30,7 +30,7 @@ public class LocationService(DoctorServiceContext context,
 	public async Task<Result> Add(LocationDto model)
 	{
 		ValidationResult validationResult = _dataValidator.Validate(model);
-		if (validationResult.IsValid)
+		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
 		try
@@ -51,7 +51,7 @@ public class LocationService(DoctorServiceContext context,
 	public async Task<Result> Edit(LocationDto model)
 	{
 		ValidationResult validationResult = _dataValidator.Validate(model);
-		if (validationResult.IsValid)
+		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
 		if (model.Id == null)
