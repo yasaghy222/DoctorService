@@ -1,4 +1,5 @@
-﻿using DoctorService.Data;
+﻿using System.Linq.Expressions;
+using DoctorService.Data;
 using DoctorService.DTOs;
 using DoctorService.Entities;
 using DoctorService.Enums;
@@ -20,13 +21,12 @@ public class DoctorService(DoctorServiceContext context,
 	private readonly IValidator<AddDoctorDto> _addValidator = addValidator;
 	private readonly IValidator<EditDoctorDto> _editValidator = editValidator;
 
-	private async Task<Result> Get(Guid id)
+	private async Task<Result> Get(Guid id, Expression<Func<Doctor, bool>> predicate)
 	{
 		if (id == Guid.Empty)
 			return CustomErrors.InvalidData("Id not Assigned!");
 
-		Doctor? doctor = await _context.Doctors.SingleOrDefaultAsync(d => d.Id == id &&
-																		  													d.Status == DoctorStatus.Confirmed);
+		Doctor? doctor = await _context.Doctors.SingleOrDefaultAsync(predicate);
 		if (doctor == null)
 			return CustomErrors.NotFoundData();
 
@@ -34,7 +34,7 @@ public class DoctorService(DoctorServiceContext context,
 	}
 	public async Task<Result> GetInfo(Guid id)
 	{
-		Result result = await Get(id);
+		Result result = await Get(id, d => d.Id == id && d.Status == DoctorStatus.Confirmed);
 
 		if (result.Status)
 			return CustomResults.SuccessOperation(result.Data.Adapt<DoctorInfo>());
@@ -43,7 +43,7 @@ public class DoctorService(DoctorServiceContext context,
 	}
 	public async Task<Result> GetDetail(Guid id)
 	{
-		Result result = await Get(id);
+		Result result = await Get(id, d => d.Id == id);
 
 		if (result.Status)
 			return CustomResults.SuccessOperation(result.Data.Adapt<DoctorDetail>());
@@ -88,6 +88,8 @@ public class DoctorService(DoctorServiceContext context,
 	public async Task<Result> GetAllInfo(DoctorFilterDto model)
 	{
 		IQueryable<DoctorInfo> query = from doctor in _context.Doctors
+										.Skip((model.PageIndex - 1) * model.PageSize)
+										.Take(model.PageSize)
 									   select new DoctorInfo
 									   {
 										   Id = doctor.Id,
@@ -138,30 +140,35 @@ public class DoctorService(DoctorServiceContext context,
 	}
 	public async Task<Result> GetAllDetails(DoctorFilterDto model)
 	{
-		IQueryable<DoctorInfo> query = from doctor in _context.Doctors
-									   select new DoctorInfo
-									   {
-										   Name = doctor.Name,
-										   Family = doctor.Family,
-										   FullName = $"{doctor.Name} {doctor.Family}",
-										   MedicalSysCode = doctor.MedicalSysCode,
-										   Content = doctor.Content,
-										   SpecialtyId = doctor.SpecialtyId,
-										   SpecialtyTitle = doctor.Specialty.Title,
-										   Rate = doctor.Rate,
-										   RaterCount = doctor.RaterCount,
-										   SuccessConsolationCount = doctor.SuccessConsolationCount,
-										   SuccessReservationCount = doctor.SuccessReservationCount,
-										   HasTelCounseling = doctor.HasTelCounseling,
-										   HasTextCounseling = doctor.HasTextCounseling,
-										   OnlinePlans = doctor.OnlinePlans != null ? doctor.OnlinePlans.Adapt<ICollection<OnlinePlanDto>>() : null,
-										   AcceptVisit = doctor.AcceptVisit,
-										   ClinicId = doctor.ClinicId,
-										   Clinic = doctor.Clinic != null ? doctor.Clinic.Adapt<ClinicDto>() : null,
-										   VisitPlans = doctor.VisitPlans != null ? doctor.VisitPlans.Adapt<ICollection<VisitPlanDto>>() : null,
-										   NearestVisitDate = GetNearestVisitDate(doctor.VisitPlans),
-										   LineStatus = doctor.LineStatus
-									   };
+		IQueryable<DoctorDetail> query = from doctor in _context.Doctors
+										.Skip((model.PageIndex - 1) * model.PageSize)
+										.Take(model.PageSize)
+										 select new DoctorDetail
+										 {
+											 Name = doctor.Name,
+											 Family = doctor.Family,
+											 FullName = $"{doctor.Name} {doctor.Family}",
+											 MedicalSysCode = doctor.MedicalSysCode,
+											 Content = doctor.Content,
+											 SpecialtyId = doctor.SpecialtyId,
+											 SpecialtyTitle = doctor.Specialty.Title,
+											 Rate = doctor.Rate,
+											 RaterCount = doctor.RaterCount,
+											 SuccessConsolationCount = doctor.SuccessConsolationCount,
+											 SuccessReservationCount = doctor.SuccessReservationCount,
+											 HasTelCounseling = doctor.HasTelCounseling,
+											 HasTextCounseling = doctor.HasTextCounseling,
+											 OnlinePlans = doctor.OnlinePlans != null ? doctor.OnlinePlans.Adapt<ICollection<OnlinePlanDto>>() : null,
+											 AcceptVisit = doctor.AcceptVisit,
+											 ClinicId = doctor.ClinicId,
+											 Clinic = doctor.Clinic != null ? doctor.Clinic.Adapt<ClinicDto>() : null,
+											 VisitPlans = doctor.VisitPlans != null ? doctor.VisitPlans.Adapt<ICollection<VisitPlanDto>>() : null,
+											 NearestVisitDate = GetNearestVisitDate(doctor.VisitPlans),
+											 LineStatus = doctor.LineStatus,
+											 Status = doctor.Status,
+											 CreateAt = doctor.CreateAt,
+											 ModifyAt = doctor.ModifyAt,
+										 };
 		query = model.ServiceType switch
 		{
 			DoctorServiceType.HasTelCounseling => query.Where(d => d.HasTelCounseling),
@@ -234,7 +241,7 @@ public class DoctorService(DoctorServiceContext context,
 			return CustomErrors.InternalServer(e.Message);
 		}
 	}
-	public async Task<Result> ChangeStatus(Guid id, DoctorStatus status)
+	public async Task<Result> ChangeStatus(Guid id, DoctorStatus status, string? statusDescription)
 	{
 		Doctor? oldData = await _context.Doctors.SingleOrDefaultAsync(d => d.Id == id);
 		if (oldData == null)
@@ -243,9 +250,8 @@ public class DoctorService(DoctorServiceContext context,
 		try
 		{
 			int effectedRowCount = await _context.Doctors.Where(d => d.Id == id)
-									 					 .ExecuteUpdateAsync(setters => setters.SetProperty(d => d.Status, status));
-
-			await _context.SaveChangesAsync();
+									 					 .ExecuteUpdateAsync(setters => setters.SetProperty(d => d.Status, status)
+														 																	 .SetProperty(d => d.StatusDescription, statusDescription));
 
 			if (effectedRowCount == 1)
 				return CustomResults.SuccessUpdate(oldData.Adapt<DoctorInfo>());
@@ -267,8 +273,6 @@ public class DoctorService(DoctorServiceContext context,
 		{
 			int effectedRowCount = await _context.Doctors.Where(d => d.Id == id)
 									 					 .ExecuteUpdateAsync(setters => setters.SetProperty(d => d.LineStatus, lineStatus));
-
-			await _context.SaveChangesAsync();
 
 			if (effectedRowCount == 1)
 				return CustomResults.SuccessUpdate(oldData.Adapt<DoctorInfo>());

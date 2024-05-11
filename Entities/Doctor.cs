@@ -28,8 +28,9 @@ public class Doctor : BaseEntity
 
 
 	public bool HasTelCounseling { get; set; } = false;
-	public bool HasTextCounseling { get; set; } = false;
 	public ICollection<OnlinePlan>? OnlinePlans { get; set; }
+
+	public bool HasTextCounseling { get; set; } = false;
 
 	public bool AcceptVisit { get; set; } = false;
 	public Guid? ClinicId { get; set; }
@@ -38,4 +39,5 @@ public class Doctor : BaseEntity
 
 	public DoctorLineStatus LineStatus { get; set; } = DoctorLineStatus.Offline;
 	public DoctorStatus Status { get; set; } = DoctorStatus.NotConfirmed;
+	public string? StatusDescription { get; set; }
 }

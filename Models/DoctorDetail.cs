@@ -1,13 +1,14 @@
 ﻿using DoctorService.DTOs;
+using DoctorService.Entities;
 using DoctorService.Enums;
 
 namespace DoctorService;
 
-public class DoctorDetail
+public class DoctorDetail : BaseEntity
 {
-	public Guid Id { get; set; }
 	public required string Name { get; set; }
 	public required string Family { get; set; }
+	public required string FullName { get; set; }
 
 	public string? Phone { get; set; }
 	public bool PhoneValidate { get; set; } = false;
@@ -28,7 +29,6 @@ public class DoctorDetail
 	public int SuccessConsolationCount { get; set; } = 0;
 	public int SuccessReservationCount { get; set; } = 0;
 
-
 	public bool HasTelCounseling { get; set; } = false;
 	public bool HasTextCounseling { get; set; } = false;
 	public ICollection<OnlinePlanDto>? OnlinePlans { get; set; }
@@ -37,6 +37,7 @@ public class DoctorDetail
 	public Guid? ClinicId { get; set; }
 	public ClinicDto? Clinic { get; set; }
 	public ICollection<VisitPlanDto>? VisitPlans { get; set; }
+	public DateTime? NearestVisitDate { get; set; } = null;
 
 	public DoctorLineStatus LineStatus { get; set; } = DoctorLineStatus.Offline;
 	public DoctorStatus Status { get; set; } = DoctorStatus.NotConfirmed;

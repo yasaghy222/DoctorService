@@ -30,11 +30,13 @@ public class DoctorController(DoctorServiceContext context,
 	[HttpGet]
 	[Route("/[controller]/{type}")]
 	public async Task<IActionResult> Get(GetDoctorType type,
+																	[FromBody] int pageIndex,
+																	[FromBody] int pageSize,
 																	[FromQuery] DoctorServiceType serviceType,
 																	[FromQuery] DoctorFilterOrder order,
 																	[FromQuery] Guid? locationId)
 	{
-		DoctorFilterDto filterDto = new(serviceType, order, locationId);
+		DoctorFilterDto filterDto = new(pageIndex, pageSize, serviceType, order, locationId);
 
 		Result result = type switch
 		{
@@ -61,10 +63,10 @@ public class DoctorController(DoctorServiceContext context,
 	}
 
 	[HttpPatch]
-	[Route("/[controller]/Status/{id}/{status}")]
-	public async Task<IActionResult> Patch(Guid id, DoctorStatus status)
+	[Route("/[controller]/Status/{id}")]
+	public async Task<IActionResult> Patch(Guid id, DoctorStatus status, string? statusDescription)
 	{
-		Result result = await _service.ChangeStatus(id, status);
+		Result result = await _service.ChangeStatus(id, status, statusDescription);
 		return StatusCode(result.StatusCode, result.Data);
 	}
 
