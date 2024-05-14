@@ -6,6 +6,6 @@ namespace DoctorService.Interfaces;
 public interface ISpecialtyService
 {
 	Task<Result> GetAll();
-	Task<Result> Add(SpecialtyDto model);
-	Task<Result> Edit(SpecialtyDto model);
+	Task<Result> Add(AddSpecialtyDto model);
+	Task<Result> Edit(EditSpecialtyDto model);
 }

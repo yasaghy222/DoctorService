@@ -7,6 +7,8 @@ public class AddDoctorValidation : AbstractValidator<AddDoctorDto>
 {
 	public AddDoctorValidation()
 	{
+		RuleFor(d => d.Image).SetValidator(d => new FileValidator<AddDoctorDto>(d.Image));
+
 		RuleFor(d => d.Name).NotEmpty()
 							.NotNull()
 							.MaximumLength(100);

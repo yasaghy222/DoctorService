@@ -17,7 +17,15 @@ public class Program
         builder.Services.RegisterMapsterConfiguration();
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-        string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+        var defName = builder.Configuration["Db:Name"];
+        var defHost = builder.Configuration["Db:Host"];
+        var defPass = builder.Configuration["Db:Pass"];
+        var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? defHost;
+        var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? defName;
+        var dbPass = Environment.GetEnvironmentVariable("DB_SA_PASSWORD") ?? defPass;
+
+        string? connectionString = $"Server={dbHost}; Persist Security Info=False; TrustServerCertificate=true; User ID=sa;Password={dbPass};Initial Catalog={dbName};";
         builder.Services.AddDbContext<DoctorServiceContext>(options => options.UseSqlServer(connectionString));
 
         builder.Services.AddControllers();

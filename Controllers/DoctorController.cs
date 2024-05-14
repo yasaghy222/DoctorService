@@ -30,8 +30,8 @@ public class DoctorController(DoctorServiceContext context,
 	[HttpGet]
 	[Route("/[controller]/{type}")]
 	public async Task<IActionResult> Get(GetDoctorType type,
-																	[FromBody] int pageIndex,
-																	[FromBody] int pageSize,
+																	[FromQuery] int pageIndex,
+																	[FromQuery] int pageSize,
 																	[FromQuery] DoctorServiceType serviceType,
 																	[FromQuery] DoctorFilterOrder order,
 																	[FromQuery] Guid? locationId)
@@ -49,14 +49,14 @@ public class DoctorController(DoctorServiceContext context,
 	}
 
 	[HttpPut]
-	public async Task<IActionResult> Put(AddDoctorDto model)
+	public async Task<IActionResult> Put([FromForm] AddDoctorDto model)
 	{
 		Result result = await _service.Add(model);
 		return StatusCode(result.StatusCode, result.Data);
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Post(EditDoctorDto model)
+	public async Task<IActionResult> Post([FromForm] EditDoctorDto model)
 	{
 		Result result = await _service.Edit(model);
 		return StatusCode(result.StatusCode, result.Data);

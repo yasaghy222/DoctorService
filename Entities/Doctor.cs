@@ -18,6 +18,9 @@ public class Doctor : BaseEntity
 	public required int MedicalSysCode { get; set; }
 	public string? Content { get; set; }
 
+	public required string ImagePath { get; set; }
+
+
 	public Guid SpecialtyId { get; set; }
 	public required Specialty Specialty { get; set; }
 

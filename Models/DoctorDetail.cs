@@ -18,6 +18,8 @@ public class DoctorDetail : BaseEntity
 
 	public GenderType Gender { get; set; } = GenderType.Men;
 
+	public required string ImagePath { get; set; }
+
 	public required int MedicalSysCode { get; set; }
 	public string? Content { get; set; }
 

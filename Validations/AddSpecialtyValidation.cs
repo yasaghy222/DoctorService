@@ -3,10 +3,12 @@ using FluentValidation;
 
 namespace DoctorService.Validations;
 
-public class SpecialtyValidation : AbstractValidator<SpecialtyDto>
+public class AddSpecialtyValidation : AbstractValidator<AddSpecialtyDto>
 {
-	public SpecialtyValidation()
+	public AddSpecialtyValidation()
 	{
+		RuleFor(s => s.Image).SetValidator(s => new FileValidator<AddSpecialtyDto>(s.Image));
+
 		RuleFor(s => s.Title).NotNull()
 							 .NotEmpty();
 

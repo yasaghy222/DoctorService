@@ -4,6 +4,7 @@ namespace DoctorService.DTOs;
 
 public class EditDoctorDto
 {
+	public IFormFile? Image { get; set; }
 	public Guid Id { get; set; }
 	public required string Name { get; set; }
 	public required string Family { get; set; }

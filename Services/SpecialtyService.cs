@@ -12,11 +12,13 @@ using Microsoft.EntityFrameworkCore;
 namespace DoctorService.Services;
 
 public class SpecialtyService(DoctorServiceContext context,
-							  IValidator<SpecialtyDto> dataValidator) : ISpecialtyService, IDisposable
+							  IValidator<AddSpecialtyDto> addValidator,
+							  IValidator<EditSpecialtyDto> editValidator) : ISpecialtyService, IDisposable
 {
 
 	private readonly DoctorServiceContext _context = context;
-	private readonly IValidator<SpecialtyDto> _dataValidator = dataValidator;
+	private readonly IValidator<AddSpecialtyDto> _addValidator = addValidator;
+	private readonly IValidator<EditSpecialtyDto> _editValidator = editValidator;
 
 
 	public async Task<Result> GetAll()
@@ -26,22 +28,23 @@ public class SpecialtyService(DoctorServiceContext context,
 	}
 
 
-	public async Task<Result> Add(SpecialtyDto model)
+	public async Task<Result> Add(AddSpecialtyDto model)
 	{
-		ValidationResult validationResult = _dataValidator.Validate(model);
+		ValidationResult validationResult = _addValidator.Validate(model);
 		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
 		try
 		{
 			Specialty specialty = model.Adapt<Specialty>();
+			specialty.ImagePath = "/";
 			await _context.Specialties.AddAsync(specialty);
 
 			await _context.SaveChangesAsync();
 
 			//TODO: Add Image With FileStorageModule
 
-			return CustomResults.SuccessCreation(specialty.Adapt<SpecialtyDto>());
+			return CustomResults.SuccessCreation(specialty.Adapt<SpecialtyInfo>());
 		}
 		catch (Exception e)
 		{
@@ -49,9 +52,9 @@ public class SpecialtyService(DoctorServiceContext context,
 		}
 	}
 
-	public async Task<Result> Edit(SpecialtyDto model)
+	public async Task<Result> Edit(EditSpecialtyDto model)
 	{
-		ValidationResult validationResult = _dataValidator.Validate(model);
+		ValidationResult validationResult = _editValidator.Validate(model);
 		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
@@ -67,13 +70,16 @@ public class SpecialtyService(DoctorServiceContext context,
 			_context.Entry(oldData).State = EntityState.Detached;
 
 			Specialty specialty = model.Adapt<Specialty>();
+
+			specialty.ImagePath = model.Image != null ? "/" : oldData.ImagePath;
+
 			_context.Specialties.Update(specialty);
 
 			await _context.SaveChangesAsync();
 
 			//TODO: Update Image With FileStorageModule
 
-			return CustomResults.SuccessUpdate(specialty.Adapt<LocationDto>());
+			return CustomResults.SuccessUpdate(specialty.Adapt<SpecialtyInfo>());
 		}
 		catch (Exception e)
 		{

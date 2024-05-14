@@ -73,6 +73,7 @@ public class DoctorService(DoctorServiceContext context,
 																												.Where(d => d.Status == DoctorStatus.Confirmed)
 																												.Select(d => new RecommendedDoctor
 																												{
+																													ImagePath = d.ImagePath,
 																													Id = d.Id,
 																													FullName = $"{d.Name} {d.Family}",
 																													SpecialtyTitle = d.Specialty.Title,
@@ -92,6 +93,7 @@ public class DoctorService(DoctorServiceContext context,
 										.Take(model.PageSize)
 									   select new DoctorInfo
 									   {
+										   ImagePath = doctor.ImagePath,
 										   Id = doctor.Id,
 										   Name = doctor.Name,
 										   Family = doctor.Family,
@@ -145,6 +147,7 @@ public class DoctorService(DoctorServiceContext context,
 										.Take(model.PageSize)
 										 select new DoctorDetail
 										 {
+											 ImagePath = doctor.ImagePath,
 											 Name = doctor.Name,
 											 Family = doctor.Family,
 											 FullName = $"{doctor.Name} {doctor.Family}",
@@ -289,5 +292,4 @@ public class DoctorService(DoctorServiceContext context,
 	{
 		_context.Dispose();
 	}
-
 }

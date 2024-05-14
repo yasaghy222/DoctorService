@@ -17,5 +17,6 @@ public interface IDoctorService
 
 	Task<Result> Add(AddDoctorDto model);
 	Task<Result> Edit(EditDoctorDto model);
-	Task<Result> ChangeStatus(Guid id, DoctorStatus status);
+	Task<Result> ChangeStatus(Guid id, DoctorStatus status, string? statusDescription);
+	Task<Result> ChangeLineStatus(Guid id, DoctorLineStatus status);
 }
