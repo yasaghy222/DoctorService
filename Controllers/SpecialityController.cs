@@ -5,6 +5,7 @@ using DoctorService.Models;
 using Microsoft.AspNetCore.Mvc;
 using DoctorService.Enums;
 using DoctorService.Services;
+using FileService;
 
 namespace DoctorService.Controllers;
 
@@ -12,9 +13,10 @@ namespace DoctorService.Controllers;
 [Route("[controller]")]
 public class SpecialtyController(DoctorServiceContext context,
 							  IValidator<AddSpecialtyDto> addValidator,
-							  IValidator<EditSpecialtyDto> editValidator) : ControllerBase
+							  IValidator<EditSpecialtyDto> editValidator,
+							  IValidator<AddFileDto> fileValidator) : ControllerBase
 {
-	private readonly SpecialtyService _service = new(context, addValidator, editValidator);
+	private readonly SpecialtyService _service = new(context, addValidator, editValidator, fileValidator);
 
 	[HttpGet]
 	public async Task<IActionResult> Get()
