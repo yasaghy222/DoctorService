@@ -66,9 +66,6 @@ public class SpecialtyService(DoctorServiceContext context,
 		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
-		if (model.Id == null)
-			return CustomErrors.InvalidData("Id not Assigned!");
-
 		Specialty? oldData = await _context.Specialties.SingleOrDefaultAsync(l => l.Id == model.Id);
 		if (oldData == null)
 			return CustomErrors.NotFoundData();
