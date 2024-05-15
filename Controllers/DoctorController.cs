@@ -4,6 +4,7 @@ using DoctorService.DTOs;
 using DoctorService.Models;
 using Microsoft.AspNetCore.Mvc;
 using DoctorService.Enums;
+using FileService;
 
 namespace DoctorService.Controllers;
 
@@ -11,9 +12,10 @@ namespace DoctorService.Controllers;
 [Route("[controller]")]
 public class DoctorController(DoctorServiceContext context,
 							  IValidator<AddDoctorDto> addValidator,
-							  IValidator<EditDoctorDto> editValidator) : ControllerBase
+							  IValidator<EditDoctorDto> editValidator,
+							  IValidator<AddFileDto> fileValidator) : ControllerBase
 {
-	private readonly DoctorService _service = new(context, addValidator, editValidator);
+	private readonly DoctorService _service = new(context, addValidator, editValidator, fileValidator);
 
 	[HttpGet]
 	[Route("/[controller]/{type}/{id}")]
@@ -49,16 +51,16 @@ public class DoctorController(DoctorServiceContext context,
 	}
 
 	[HttpPut]
-	public async Task<IActionResult> Put([FromForm] AddDoctorDto model)
+	public async Task<IActionResult> Put([FromForm] EditDoctorDto model)
 	{
-		Result result = await _service.Add(model);
+		Result result = await _service.Edit(model);
 		return StatusCode(result.StatusCode, result.Data);
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Post([FromForm] EditDoctorDto model)
+	public async Task<IActionResult> Post([FromForm] AddDoctorDto model)
 	{
-		Result result = await _service.Edit(model);
+		Result result = await _service.Add(model);
 		return StatusCode(result.StatusCode, result.Data);
 	}
 

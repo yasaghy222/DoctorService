@@ -5,6 +5,7 @@ using DoctorService.Entities;
 using DoctorService.Enums;
 using DoctorService.Models;
 using DoctorService.Shared;
+using FileService;
 using FluentValidation;
 using FluentValidation.Results;
 using Mapster;
@@ -14,10 +15,12 @@ using Microsoft.EntityFrameworkCore;
 namespace DoctorService;
 
 public class DoctorService(DoctorServiceContext context,
-						   IValidator<AddDoctorDto> addValidator,
-						   IValidator<EditDoctorDto> editValidator) : IDoctorService, IDisposable
+											  IValidator<AddDoctorDto> addValidator,
+											  IValidator<EditDoctorDto> editValidator,
+											  IValidator<AddFileDto> fileValidator) : IDoctorService, IDisposable
 {
 	private readonly DoctorServiceContext _context = context;
+	private readonly FileService.FileService _fileService = new(fileValidator);
 	private readonly IValidator<AddDoctorDto> _addValidator = addValidator;
 	private readonly IValidator<EditDoctorDto> _editValidator = editValidator;
 
@@ -89,6 +92,7 @@ public class DoctorService(DoctorServiceContext context,
 	public async Task<Result> GetAllInfo(DoctorFilterDto model)
 	{
 		IQueryable<DoctorInfo> query = from doctor in _context.Doctors
+										.Where(d => d.Status == DoctorStatus.Confirmed)
 										.Skip((model.PageIndex - 1) * model.PageSize)
 										.Take(model.PageSize)
 									   select new DoctorInfo
@@ -203,17 +207,30 @@ public class DoctorService(DoctorServiceContext context,
 		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
+		Specialty? specialty = await _context.Specialties.SingleOrDefaultAsync(s => s.Id == model.SpecialtyId);
+		if (specialty == null)
+			return CustomErrors.NotFoundData("تخصص انتخاب شده یافت نشد!");
+
+
+		Doctor doctor = model.Adapt<Doctor>();
+
+		Result fileResult = await _fileService.Add(new(doctor.Id, model.Image, "Doctor"));
+		if (!fileResult.Status)
+			return fileResult;
+
+		doctor.ImagePath = fileResult.Data?.ToString() ?? "";
+
 		try
 		{
-			Doctor doctor = model.Adapt<Doctor>();
 			await _context.Doctors.AddAsync(doctor);
-
 			await _context.SaveChangesAsync();
 
+			doctor.Specialty = specialty;
 			return CustomResults.SuccessCreation(doctor.Adapt<DoctorDetail>());
 		}
 		catch (Exception e)
 		{
+			_fileService.Delete(doctor.ImagePath);
 			return CustomErrors.InternalServer(e.Message);
 		}
 	}
@@ -228,19 +245,40 @@ public class DoctorService(DoctorServiceContext context,
 		if (oldData == null)
 			return CustomErrors.NotFoundData();
 
+		string oldPath = oldData.ImagePath;
+
+		_context.Entry(oldData).State = EntityState.Detached;
+		oldData = model.Adapt<Doctor>();
+		oldData.ImagePath = oldPath;
+
+		if (model.Image != null)
+		{
+			Result fileResult = await _fileService.Add(new(oldData.Id, model.Image, "Doctor"));
+			if (!fileResult.Status)
+				return fileResult;
+
+			oldData.ImagePath = fileResult.Data?.ToString() ?? "";
+		}
+
 		try
 		{
-			_context.Entry(oldData).State = EntityState.Detached;
-
-			Doctor doctor = model.Adapt<Doctor>();
-			_context.Doctors.Update(doctor);
-
+			_context.Doctors.Update(oldData);
 			await _context.SaveChangesAsync();
 
-			return CustomResults.SuccessUpdate(doctor.Adapt<DoctorInfo>());
+			if (model.Image != null)
+			{
+				Result fileResult = _fileService.Delete(oldPath);
+				if (!fileResult.Status)
+					return fileResult;
+			}
+
+			return CustomResults.SuccessUpdate(oldData.Adapt<DoctorInfo>());
 		}
 		catch (Exception e)
 		{
+			if (model.Image != null)
+				_fileService.Delete(oldData.ImagePath);
+
 			return CustomErrors.InternalServer(e.Message);
 		}
 	}
@@ -253,8 +291,8 @@ public class DoctorService(DoctorServiceContext context,
 		try
 		{
 			int effectedRowCount = await _context.Doctors.Where(d => d.Id == id)
-									 					 .ExecuteUpdateAsync(setters => setters.SetProperty(d => d.Status, status)
-														 																	 .SetProperty(d => d.StatusDescription, statusDescription));
+														  .ExecuteUpdateAsync(setters => setters.SetProperty(d => d.Status, status)
+																															  .SetProperty(d => d.StatusDescription, statusDescription));
 
 			if (effectedRowCount == 1)
 				return CustomResults.SuccessUpdate(oldData.Adapt<DoctorInfo>());
@@ -275,7 +313,7 @@ public class DoctorService(DoctorServiceContext context,
 		try
 		{
 			int effectedRowCount = await _context.Doctors.Where(d => d.Id == id)
-									 					 .ExecuteUpdateAsync(setters => setters.SetProperty(d => d.LineStatus, lineStatus));
+														  .ExecuteUpdateAsync(setters => setters.SetProperty(d => d.LineStatus, lineStatus));
 
 			if (effectedRowCount == 1)
 				return CustomResults.SuccessUpdate(oldData.Adapt<DoctorInfo>());

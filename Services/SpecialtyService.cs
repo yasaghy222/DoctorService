@@ -4,6 +4,7 @@ using DoctorService.Entities;
 using DoctorService.Interfaces;
 using DoctorService.Models;
 using DoctorService.Shared;
+using FileService;
 using FluentValidation;
 using FluentValidation.Results;
 using Mapster;
@@ -13,10 +14,13 @@ namespace DoctorService.Services;
 
 public class SpecialtyService(DoctorServiceContext context,
 							  IValidator<AddSpecialtyDto> addValidator,
-							  IValidator<EditSpecialtyDto> editValidator) : ISpecialtyService, IDisposable
+							  IValidator<EditSpecialtyDto> editValidator,
+							  IValidator<AddFileDto> fileValidator) : ISpecialtyService, IDisposable
 {
 
 	private readonly DoctorServiceContext _context = context;
+	private readonly FileService.FileService _fileService = new(fileValidator);
+
 	private readonly IValidator<AddSpecialtyDto> _addValidator = addValidator;
 	private readonly IValidator<EditSpecialtyDto> _editValidator = editValidator;
 
@@ -34,20 +38,24 @@ public class SpecialtyService(DoctorServiceContext context,
 		if (!validationResult.IsValid)
 			return CustomErrors.InvalidData(validationResult.Errors);
 
+		Specialty specialty = model.Adapt<Specialty>();
+
+		Result fileResult = await _fileService.Add(new(specialty.Id, model.Image, "Specialty"));
+		if (!fileResult.Status)
+			return fileResult;
+
+		specialty.ImagePath = fileResult.Data?.ToString() ?? "";
+
 		try
 		{
-			Specialty specialty = model.Adapt<Specialty>();
-			specialty.ImagePath = "/";
 			await _context.Specialties.AddAsync(specialty);
-
 			await _context.SaveChangesAsync();
-
-			//TODO: Add Image With FileStorageModule
 
 			return CustomResults.SuccessCreation(specialty.Adapt<SpecialtyInfo>());
 		}
 		catch (Exception e)
 		{
+			_fileService.Delete(specialty.ImagePath);
 			return CustomErrors.InternalServer(e.Message);
 		}
 	}
@@ -65,24 +73,40 @@ public class SpecialtyService(DoctorServiceContext context,
 		if (oldData == null)
 			return CustomErrors.NotFoundData();
 
+		string oldPath = oldData.ImagePath;
+
+		_context.Entry(oldData).State = EntityState.Detached;
+		oldData = model.Adapt<Specialty>();
+		oldData.ImagePath = oldPath;
+
+		if (model.Image != null)
+		{
+			Result fileResult = await _fileService.Add(new(oldData.Id, model.Image, "Doctor"));
+			if (!fileResult.Status)
+				return fileResult;
+
+			oldData.ImagePath = fileResult.Data?.ToString() ?? "";
+		}
+
 		try
 		{
-			_context.Entry(oldData).State = EntityState.Detached;
-
-			Specialty specialty = model.Adapt<Specialty>();
-
-			specialty.ImagePath = model.Image != null ? "/" : oldData.ImagePath;
-
-			_context.Specialties.Update(specialty);
-
+			_context.Specialties.Update(oldData);
 			await _context.SaveChangesAsync();
 
-			//TODO: Update Image With FileStorageModule
+			if (model.Image != null)
+			{
+				Result fileResult = _fileService.Delete(oldPath);
+				if (!fileResult.Status)
+					return fileResult;
+			}
 
-			return CustomResults.SuccessUpdate(specialty.Adapt<SpecialtyInfo>());
+			return CustomResults.SuccessUpdate(oldData.Adapt<SpecialtyInfo>());
 		}
 		catch (Exception e)
 		{
+			if (model.Image != null)
+				_fileService.Delete(oldData.ImagePath);
+
 			return CustomErrors.InternalServer(e.Message);
 		}
 	}
