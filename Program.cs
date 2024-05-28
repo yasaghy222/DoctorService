@@ -3,7 +3,6 @@ using DoctorService.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using DoctorService.Mappings;
-using MedicalHealthPlus.Interfaces;
 
 namespace DoctorService;
 
