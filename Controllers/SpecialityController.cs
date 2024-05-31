@@ -26,16 +26,16 @@ public class SpecialtyController(DoctorServiceContext context,
 	}
 
 	[HttpPut]
-	public async Task<IActionResult> Put([FromForm] AddSpecialtyDto model)
+	public async Task<IActionResult> Put([FromForm] EditSpecialtyDto model)
 	{
-		Result result = await _service.Add(model);
+		Result result = await _service.Edit(model);
 		return StatusCode(result.StatusCode, result.Data);
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Post([FromForm] EditSpecialtyDto model)
+	public async Task<IActionResult> Post([FromForm] AddSpecialtyDto model)
 	{
-		Result result = await _service.Edit(model);
+		Result result = await _service.Add(model);
 		return StatusCode(result.StatusCode, result.Data);
 	}
 }
