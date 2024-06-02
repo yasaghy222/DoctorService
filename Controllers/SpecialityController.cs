@@ -6,17 +6,20 @@ using Microsoft.AspNetCore.Mvc;
 using DoctorService.Enums;
 using DoctorService.Services;
 using FileService;
+using DoctorService.Shared;
 
 namespace DoctorService.Controllers;
 
 [ApiController]
 [Route("[controller]")]
 public class SpecialtyController(DoctorServiceContext context,
+							ILogger<SpecialtyService> logger,
+							  ILogger<FileService.FileService> fileLogger,
 							  IValidator<AddSpecialtyDto> addValidator,
 							  IValidator<EditSpecialtyDto> editValidator,
 							  IValidator<AddFileDto> fileValidator) : ControllerBase
 {
-	private readonly SpecialtyService _service = new(context, addValidator, editValidator, fileValidator);
+	private readonly SpecialtyService _service = new(context, logger, fileLogger, addValidator, editValidator, fileValidator);
 
 	[HttpGet]
 	public async Task<IActionResult> Get()

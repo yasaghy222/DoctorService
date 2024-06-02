@@ -13,13 +13,16 @@ using Microsoft.EntityFrameworkCore;
 namespace DoctorService.Services;
 
 public class SpecialtyService(DoctorServiceContext context,
+							  ILogger<SpecialtyService> logger,
+							  ILogger<FileService.FileService> fileLogger,
 							  IValidator<AddSpecialtyDto> addValidator,
 							  IValidator<EditSpecialtyDto> editValidator,
 							  IValidator<AddFileDto> fileValidator) : ISpecialtyService, IDisposable
 {
 
+	private ILogger<SpecialtyService> _logger { get; init; } = logger;
 	private readonly DoctorServiceContext _context = context;
-	private readonly FileService.FileService _fileService = new(fileValidator);
+	private readonly FileService.FileService _fileService = new(fileValidator, fileLogger);
 
 	private readonly IValidator<AddSpecialtyDto> _addValidator = addValidator;
 	private readonly IValidator<EditSpecialtyDto> _editValidator = editValidator;
@@ -55,8 +58,9 @@ public class SpecialtyService(DoctorServiceContext context,
 		}
 		catch (Exception e)
 		{
+			_logger.LogDebug(e.Message, e);
 			_fileService.Delete(specialty.ImagePath);
-			return CustomErrors.InternalServer(e.Message);
+			return CustomErrors.InternalServer();
 		}
 	}
 
@@ -104,7 +108,8 @@ public class SpecialtyService(DoctorServiceContext context,
 			if (model.Image != null)
 				_fileService.Delete(oldData.ImagePath);
 
-			return CustomErrors.InternalServer(e.Message);
+			_logger.LogDebug(e.Message, e);
+			return CustomErrors.InternalServer();
 		}
 	}
 

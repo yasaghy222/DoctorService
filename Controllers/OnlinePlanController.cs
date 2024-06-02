@@ -25,14 +25,14 @@ public class OnlinePlanController(DoctorServiceContext context,
 	[HttpPut]
 	public async Task<IActionResult> Put(OnlinePlanDto model)
 	{
-		Result result = await _service.Add(model);
+		Result result = await _service.Edit(model);
 		return StatusCode(result.StatusCode, result.Data);
 	}
 
 	[HttpPost]
 	public async Task<IActionResult> Post(OnlinePlanDto model)
 	{
-		Result result = await _service.Edit(model);
+		Result result = await _service.Add(model);
 		return StatusCode(result.StatusCode, result.Data);
 	}
 

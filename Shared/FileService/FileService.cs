@@ -5,8 +5,10 @@ using FluentValidation.Results;
 
 namespace FileService
 {
-    public class FileService(IValidator<AddFileDto> addValidator) : IFileService
+    public class FileService(IValidator<AddFileDto> addValidator, ILogger<FileService> logger) : IFileService
     {
+
+        private readonly ILogger<FileService> _logger = logger;
         private readonly IValidator<AddFileDto> _addValidator = addValidator;
 
         public async Task<Result> Add(AddFileDto model)
@@ -34,8 +36,9 @@ namespace FileService
 
                 return FileResults.FileSaved($"{model.Address}/{model.Id}.{ext}");
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogDebug(e.Message, e);
                 return FileErrors.SaveFileFailed();
             }
         }
@@ -52,8 +55,9 @@ namespace FileService
                 File.Delete(path);
                 return FileResults.FileRemoved();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogDebug(e.Message, e);
                 return FileErrors.RemoveFileFailed();
             }
         }
