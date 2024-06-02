@@ -37,20 +37,18 @@ public class SpecialtyService(DoctorServiceContext context,
 
 	public async Task<Result> Add(AddSpecialtyDto model)
 	{
-		ValidationResult validationResult = _addValidator.Validate(model);
-		if (!validationResult.IsValid)
-			return CustomErrors.InvalidData(validationResult.Errors);
-
-		Specialty specialty = model.Adapt<Specialty>();
-
-		Result fileResult = await _fileService.Add(new(specialty.Id, model.Image, "Specialty"));
-		if (!fileResult.Status)
-			return fileResult;
-
-		specialty.ImagePath = fileResult.Data?.ToString() ?? "";
-
 		try
 		{
+			ValidationResult validationResult = _addValidator.Validate(model);
+			if (!validationResult.IsValid)
+				return CustomErrors.InvalidData(validationResult.Errors);
+
+			Specialty specialty = model.Adapt<Specialty>();
+			Result fileResult = await _fileService.Add(new(specialty.Id, model.Image, "Specialty"));
+			if (!fileResult.Status)
+				return fileResult;
+
+			specialty.ImagePath = fileResult.Data?.ToString() ?? "";
 			await _context.Specialties.AddAsync(specialty);
 			await _context.SaveChangesAsync();
 
@@ -59,7 +57,7 @@ public class SpecialtyService(DoctorServiceContext context,
 		catch (Exception e)
 		{
 			_logger.LogDebug(e.Message, e);
-			_fileService.Delete(specialty.ImagePath);
+			// _fileService.Delete(specialty.ImagePath);
 			return CustomErrors.InternalServer();
 		}
 	}
