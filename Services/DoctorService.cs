@@ -15,13 +15,12 @@ using Microsoft.EntityFrameworkCore;
 namespace DoctorService;
 
 public class DoctorService(DoctorServiceContext context,
-											  ILogger<FileService.FileService> fileLogger,
 											  IValidator<AddDoctorDto> addValidator,
 											  IValidator<EditDoctorDto> editValidator,
 											  IValidator<AddFileDto> fileValidator) : IDoctorService, IDisposable
 {
 	private readonly DoctorServiceContext _context = context;
-	private readonly FileService.FileService _fileService = new(fileValidator, fileLogger);
+	private readonly FileService.FileService _fileService = new(fileValidator);
 	private readonly IValidator<AddDoctorDto> _addValidator = addValidator;
 	private readonly IValidator<EditDoctorDto> _editValidator = editValidator;
 
