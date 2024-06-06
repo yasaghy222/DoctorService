@@ -70,7 +70,7 @@ public class DoctorController(
 
 	[HttpPut]
 	[Route("/[controller]/Status")]
-	public async Task<IActionResult> Put(ChangeDoctorStatusDto model)
+	public async Task<IActionResult> Put([FromForm] ChangeDoctorStatusDto model)
 	{
 		Result result = await _service.ChangeStatus(model);
 		return StatusCode(result.StatusCode, result.Data);
@@ -78,7 +78,7 @@ public class DoctorController(
 
 	[HttpPut]
 	[Route("/[controller]/LineStatus")]
-	public async Task<IActionResult> Put(ChangeDoctorLineStatusDto model)
+	public async Task<IActionResult> Put([FromForm] ChangeDoctorLineStatusDto model)
 	{
 		Result result = await _service.ChangeLineStatus(model);
 		return StatusCode(result.StatusCode, result.Data);
