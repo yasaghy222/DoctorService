@@ -31,7 +31,7 @@ public class DoctorController(
 			GetDoctorType.Detail => await _service.GetDetail(id),
 			_ => await _service.GetInfo(id)
 		};
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 	[HttpGet]
 	[Route("/[controller]/{type}")]
@@ -51,36 +51,36 @@ public class DoctorController(
 			GetDoctorType.Recommended => await _service.GetAllRecommends(),
 			_ => await _service.GetAllInfo(filterDto)
 		};
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
 	[HttpPut]
 	public async Task<IActionResult> Put([FromForm] EditDoctorDto model)
 	{
 		Result result = await _service.Edit(model);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
 	[HttpPost]
 	public async Task<IActionResult> Post([FromForm] AddDoctorDto model)
 	{
 		Result result = await _service.Add(model);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
-	[HttpPut]
+	[HttpPatch]
 	[Route("/[controller]/Status")]
-	public async Task<IActionResult> Put([FromForm] ChangeDoctorStatusDto model)
+	public async Task<IActionResult> Patch([FromForm] ChangeDoctorStatusDto model)
 	{
 		Result result = await _service.ChangeStatus(model);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
-	[HttpPut]
+	[HttpPatch]
 	[Route("/[controller]/LineStatus")]
-	public async Task<IActionResult> Put([FromForm] ChangeDoctorLineStatusDto model)
+	public async Task<IActionResult> Patch([FromForm] ChangeDoctorLineStatusDto model)
 	{
 		Result result = await _service.ChangeLineStatus(model);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 }

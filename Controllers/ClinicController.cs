@@ -19,13 +19,13 @@ public class ClinicController(DoctorServiceContext context,
 	public async Task<IActionResult> Put(ClinicDto model)
 	{
 		Result result = await _service.Edit(model);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
 	[HttpPost]
 	public async Task<IActionResult> Post(ClinicDto model)
 	{
 		Result result = await _service.Add(model);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 }

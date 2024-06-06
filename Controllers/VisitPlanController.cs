@@ -22,21 +22,21 @@ public class VisitPlanController(DoctorServiceContext context,
 		VisitPlanFilterDto filterDto = new(doctorId, fromDate, toDate);
 		Result result = await _service.GetAll(filterDto);
 
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
 	[HttpPut]
 	public async Task<IActionResult> Put(VisitPlanDto model)
 	{
 		Result result = await _service.Edit(model);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
 	[HttpPost]
 	public async Task<IActionResult> Post(VisitPlanDto model)
 	{
 		Result result = await _service.Add(model);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
 	[HttpDelete]
@@ -44,6 +44,6 @@ public class VisitPlanController(DoctorServiceContext context,
 	public async Task<IActionResult> Delete(Guid id)
 	{
 		Result result = await _service.Delete(id);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 }

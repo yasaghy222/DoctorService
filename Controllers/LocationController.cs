@@ -19,20 +19,20 @@ public class LocationController(DoctorServiceContext context,
 	public async Task<IActionResult> Get(Guid? parentId)
 	{
 		Result result = await _service.GetAll(parentId);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
 	[HttpPut]
 	public async Task<IActionResult> Put(LocationDto model)
 	{
 		Result result = await _service.Edit(model);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
 	[HttpPost]
 	public async Task<IActionResult> Post(LocationDto model)
 	{
 		Result result = await _service.Add(model);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 }

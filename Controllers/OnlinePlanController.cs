@@ -19,21 +19,21 @@ public class OnlinePlanController(DoctorServiceContext context,
 	public async Task<IActionResult> Get(Guid doctorId)
 	{
 		Result result = await _service.GetAll(doctorId);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
 	[HttpPut]
 	public async Task<IActionResult> Put(OnlinePlanDto model)
 	{
 		Result result = await _service.Edit(model);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
 	[HttpPost]
 	public async Task<IActionResult> Post(OnlinePlanDto model)
 	{
 		Result result = await _service.Add(model);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 
 	[HttpDelete]
@@ -41,6 +41,6 @@ public class OnlinePlanController(DoctorServiceContext context,
 	public async Task<IActionResult> Delete(Guid id)
 	{
 		Result result = await _service.Delete(id);
-		return StatusCode(result.StatusCode, result.Data);
+		return StatusCode(result.StatusCode, result);
 	}
 }
