@@ -151,6 +151,12 @@ public class DoctorService(DoctorServiceContext context,
 										.Take(model.PageSize)
 					   select new DoctorDetail
 					   {
+						   Id = doctor.Id,
+						   Email = doctor.Email,
+						   EmailValidate = doctor.EmailValidate,
+						   Gender = doctor.Gender,
+						   Phone = doctor.Phone,
+						   PhoneValidate = doctor.PhoneValidate,
 						   ImagePath = doctor.ImagePath,
 						   Name = doctor.Name,
 						   Family = doctor.Family,
