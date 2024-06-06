@@ -63,9 +63,9 @@ public class DoctorService(DoctorServiceContext context,
 		DateTime? dateTime = null;
 
 		IEnumerable<DateTime> dates = from vp in visitPlans
-									  where vp.Date.CompareTo(DateOnly.FromDateTime(DateTime.Now)) <= 0 &&
-											vp.StartTime.CompareTo(TimeOnly.FromDateTime(DateTime.Now)) <= 0
-									  select new DateTime(vp.Date, vp.StartTime);
+					where vp.Date.CompareTo(DateOnly.FromDateTime(DateTime.Now)) <= 0 &&
+						        vp.StartTime.CompareTo(TimeOnly.FromDateTime(DateTime.Now)) <= 0
+					select new DateTime(vp.Date, vp.StartTime);
 		dateTime = dates.FirstOrDefault();
 
 		return dateTime;
@@ -96,31 +96,31 @@ public class DoctorService(DoctorServiceContext context,
 										.Where(d => d.Status == DoctorStatus.Confirmed)
 										.Skip((model.PageIndex - 1) * model.PageSize)
 										.Take(model.PageSize)
-									   select new DoctorInfo
-									   {
-										   ImagePath = doctor.ImagePath,
-										   Id = doctor.Id,
-										   Name = doctor.Name,
-										   Family = doctor.Family,
-										   FullName = $"{doctor.Name} {doctor.Family}",
-										   MedicalSysCode = doctor.MedicalSysCode,
-										   Content = doctor.Content,
-										   SpecialtyId = doctor.SpecialtyId,
-										   SpecialtyTitle = doctor.Specialty.Title,
-										   Rate = doctor.Rate,
-										   RaterCount = doctor.RaterCount,
-										   SuccessConsolationCount = doctor.SuccessConsolationCount,
-										   SuccessReservationCount = doctor.SuccessReservationCount,
-										   HasTelCounseling = doctor.HasTelCounseling,
-										   HasTextCounseling = doctor.HasTextCounseling,
-										   OnlinePlans = doctor.OnlinePlans != null ? doctor.OnlinePlans.Adapt<ICollection<OnlinePlanDto>>() : null,
-										   AcceptVisit = doctor.AcceptVisit,
-										   ClinicId = doctor.ClinicId,
-										   Clinic = doctor.Clinic != null ? doctor.Clinic.Adapt<ClinicDto>() : null,
-										   VisitPlans = doctor.VisitPlans != null ? doctor.VisitPlans.Adapt<ICollection<VisitPlanDto>>() : null,
-										   NearestVisitDate = GetNearestVisitDate(doctor.VisitPlans),
-										   LineStatus = doctor.LineStatus
-									   };
+					 select new DoctorInfo
+					 {
+						 ImagePath = doctor.ImagePath,
+						 Id = doctor.Id,
+						 Name = doctor.Name,
+						 Family = doctor.Family,
+						 FullName = $"{doctor.Name} {doctor.Family}",
+						 MedicalSysCode = doctor.MedicalSysCode,
+						 Content = doctor.Content,
+						 SpecialtyId = doctor.SpecialtyId,
+						 SpecialtyTitle = doctor.Specialty.Title,
+						 Rate = doctor.Rate,
+						 RaterCount = doctor.RaterCount,
+						 SuccessConsolationCount = doctor.SuccessConsolationCount,
+						 SuccessReservationCount = doctor.SuccessReservationCount,
+						 HasTelCounseling = doctor.HasTelCounseling,
+						 HasTextCounseling = doctor.HasTextCounseling,
+						 OnlinePlans = doctor.OnlinePlans != null ? doctor.OnlinePlans.Adapt<ICollection<OnlinePlanDto>>() : null,
+						 AcceptVisit = doctor.AcceptVisit,
+						 ClinicId = doctor.ClinicId,
+						 Clinic = doctor.Clinic != null ? doctor.Clinic.Adapt<ClinicDto>() : null,
+						 VisitPlans = doctor.VisitPlans != null ? doctor.VisitPlans.Adapt<ICollection<VisitPlanDto>>() : null,
+						 NearestVisitDate = GetNearestVisitDate(doctor.VisitPlans),
+						 LineStatus = doctor.LineStatus
+					 };
 		query = model.ServiceType switch
 		{
 			DoctorServiceType.HasTelCounseling => query.Where(d => d.HasTelCounseling),
@@ -150,33 +150,33 @@ public class DoctorService(DoctorServiceContext context,
 		IQueryable<DoctorDetail> query = from doctor in _context.Doctors
 										.Skip((model.PageIndex - 1) * model.PageSize)
 										.Take(model.PageSize)
-										 select new DoctorDetail
-										 {
-											 ImagePath = doctor.ImagePath,
-											 Name = doctor.Name,
-											 Family = doctor.Family,
-											 FullName = $"{doctor.Name} {doctor.Family}",
-											 MedicalSysCode = doctor.MedicalSysCode,
-											 Content = doctor.Content,
-											 SpecialtyId = doctor.SpecialtyId,
-											 SpecialtyTitle = doctor.Specialty.Title,
-											 Rate = doctor.Rate,
-											 RaterCount = doctor.RaterCount,
-											 SuccessConsolationCount = doctor.SuccessConsolationCount,
-											 SuccessReservationCount = doctor.SuccessReservationCount,
-											 HasTelCounseling = doctor.HasTelCounseling,
-											 HasTextCounseling = doctor.HasTextCounseling,
-											 OnlinePlans = doctor.OnlinePlans != null ? doctor.OnlinePlans.Adapt<ICollection<OnlinePlanDto>>() : null,
-											 AcceptVisit = doctor.AcceptVisit,
-											 ClinicId = doctor.ClinicId,
-											 Clinic = doctor.Clinic != null ? doctor.Clinic.Adapt<ClinicDto>() : null,
-											 VisitPlans = doctor.VisitPlans != null ? doctor.VisitPlans.Adapt<ICollection<VisitPlanDto>>() : null,
-											 NearestVisitDate = GetNearestVisitDate(doctor.VisitPlans),
-											 LineStatus = doctor.LineStatus,
-											 Status = doctor.Status,
-											 CreateAt = doctor.CreateAt,
-											 ModifyAt = doctor.ModifyAt,
-										 };
+					   select new DoctorDetail
+					   {
+						   ImagePath = doctor.ImagePath,
+						   Name = doctor.Name,
+						   Family = doctor.Family,
+						   FullName = $"{doctor.Name} {doctor.Family}",
+						   MedicalSysCode = doctor.MedicalSysCode,
+						   Content = doctor.Content,
+						   SpecialtyId = doctor.SpecialtyId,
+						   SpecialtyTitle = doctor.Specialty.Title,
+						   Rate = doctor.Rate,
+						   RaterCount = doctor.RaterCount,
+						   SuccessConsolationCount = doctor.SuccessConsolationCount,
+						   SuccessReservationCount = doctor.SuccessReservationCount,
+						   HasTelCounseling = doctor.HasTelCounseling,
+						   HasTextCounseling = doctor.HasTextCounseling,
+						   OnlinePlans = doctor.OnlinePlans != null ? doctor.OnlinePlans.Adapt<ICollection<OnlinePlanDto>>() : null,
+						   AcceptVisit = doctor.AcceptVisit,
+						   ClinicId = doctor.ClinicId,
+						   Clinic = doctor.Clinic != null ? doctor.Clinic.Adapt<ClinicDto>() : null,
+						   VisitPlans = doctor.VisitPlans != null ? doctor.VisitPlans.Adapt<ICollection<VisitPlanDto>>() : null,
+						   NearestVisitDate = GetNearestVisitDate(doctor.VisitPlans),
+						   LineStatus = doctor.LineStatus,
+						   Status = doctor.Status,
+						   CreateAt = doctor.CreateAt,
+						   ModifyAt = doctor.ModifyAt,
+					   };
 		query = model.ServiceType switch
 		{
 			DoctorServiceType.HasTelCounseling => query.Where(d => d.HasTelCounseling),
@@ -283,17 +283,17 @@ public class DoctorService(DoctorServiceContext context,
 			return CustomErrors.InternalServer(e.Message);
 		}
 	}
-	public async Task<Result> ChangeStatus(Guid id, DoctorStatus status, string? statusDescription)
+	public async Task<Result> ChangeStatus(ChangeDoctorStatusDto model)
 	{
-		Doctor? oldData = await _context.Doctors.SingleOrDefaultAsync(d => d.Id == id);
+		Doctor? oldData = await _context.Doctors.SingleOrDefaultAsync(d => d.Id == model.Id);
 		if (oldData == null)
 			return CustomErrors.NotFoundData();
 
 		try
 		{
-			int effectedRowCount = await _context.Doctors.Where(d => d.Id == id)
-														  .ExecuteUpdateAsync(setters => setters.SetProperty(d => d.Status, status)
-																															  .SetProperty(d => d.StatusDescription, statusDescription));
+			int effectedRowCount = await _context.Doctors.Where(d => d.Id == model.Id)
+										         .ExecuteUpdateAsync(setters => setters.SetProperty(d => d.Status, model.Status)
+											.SetProperty(d => d.StatusDescription, model.StatusDescription));
 
 			if (effectedRowCount == 1)
 				return CustomResults.SuccessUpdate(oldData.Adapt<DoctorInfo>());
@@ -305,16 +305,16 @@ public class DoctorService(DoctorServiceContext context,
 			return CustomErrors.InternalServer(e.Message);
 		}
 	}
-	public async Task<Result> ChangeLineStatus(Guid id, DoctorLineStatus lineStatus)
+	public async Task<Result> ChangeLineStatus(ChangeDoctorLineStatusDto model)
 	{
-		Doctor? oldData = await _context.Doctors.SingleOrDefaultAsync(d => d.Id == id);
+		Doctor? oldData = await _context.Doctors.SingleOrDefaultAsync(d => d.Id == model.Id);
 		if (oldData == null)
 			return CustomErrors.NotFoundData();
 
 		try
 		{
-			int effectedRowCount = await _context.Doctors.Where(d => d.Id == id)
-														  .ExecuteUpdateAsync(setters => setters.SetProperty(d => d.LineStatus, lineStatus));
+			int effectedRowCount = await _context.Doctors.Where(d => d.Id == model.Id)
+ 											.ExecuteUpdateAsync(setters => setters.SetProperty(d => d.LineStatus, model.LineStatus));
 
 			if (effectedRowCount == 1)
 				return CustomResults.SuccessUpdate(oldData.Adapt<DoctorInfo>());

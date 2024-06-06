@@ -70,18 +70,18 @@ public class DoctorController(
 	}
 
 	[HttpPatch]
-	[Route("/[controller]/Status/{id}")]
-	public async Task<IActionResult> Patch(Guid id, DoctorStatus status, string? statusDescription)
+	[Route("/[controller]/Status")]
+	public async Task<IActionResult> Patch(ChangeDoctorStatusDto model)
 	{
-		Result result = await _service.ChangeStatus(id, status, statusDescription);
+		Result result = await _service.ChangeStatus(model);
 		return StatusCode(result.StatusCode, result.Data);
 	}
 
 	[HttpPatch]
-	[Route("/[controller]/lineStatus/{id}/{status}")]
-	public async Task<IActionResult> Patch(Guid id, DoctorLineStatus status)
+	[Route("/[controller]/LineStatus")]
+	public async Task<IActionResult> Patch(ChangeDoctorLineStatusDto model)
 	{
-		Result result = await _service.ChangeLineStatus(id, status);
+		Result result = await _service.ChangeLineStatus(model);
 		return StatusCode(result.StatusCode, result.Data);
 	}
 }
