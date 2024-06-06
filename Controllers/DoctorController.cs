@@ -68,17 +68,17 @@ public class DoctorController(
 		return StatusCode(result.StatusCode, result.Data);
 	}
 
-	[HttpPatch]
+	[HttpPut]
 	[Route("/[controller]/Status")]
-	public async Task<IActionResult> Patch(ChangeDoctorStatusDto model)
+	public async Task<IActionResult> Put(ChangeDoctorStatusDto model)
 	{
 		Result result = await _service.ChangeStatus(model);
 		return StatusCode(result.StatusCode, result.Data);
 	}
 
-	[HttpPatch]
+	[HttpPut]
 	[Route("/[controller]/LineStatus")]
-	public async Task<IActionResult> Patch(ChangeDoctorLineStatusDto model)
+	public async Task<IActionResult> Put(ChangeDoctorLineStatusDto model)
 	{
 		Result result = await _service.ChangeLineStatus(model);
 		return StatusCode(result.StatusCode, result.Data);
