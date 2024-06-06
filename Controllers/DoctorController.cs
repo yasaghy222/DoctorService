@@ -11,16 +11,15 @@ namespace DoctorService.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class DoctorController(
-							  DoctorServiceContext context,
-							  ILogger<DoctorController> logger,
-							  ILogger<FileService.FileService> fileLogger,
-							  IValidator<AddDoctorDto> addValidator,
-							  IValidator<EditDoctorDto> editValidator,
-							  IValidator<AddFileDto> fileValidator) : ControllerBase
+					DoctorServiceContext context,
+					ILogger<DoctorController> logger,
+					IValidator<AddDoctorDto> addValidator,
+					IValidator<EditDoctorDto> editValidator,
+					IValidator<AddFileDto> fileValidator) : ControllerBase
 {
 
 	private ILogger<DoctorController> _logger { get; init; } = logger;
-	private readonly DoctorService _service = new(context, fileLogger, addValidator, editValidator, fileValidator);
+	private readonly DoctorService _service = new(context, addValidator, editValidator, fileValidator);
 
 	[HttpGet]
 	[Route("/[controller]/{type}/{id}")]

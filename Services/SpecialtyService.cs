@@ -14,7 +14,6 @@ namespace DoctorService.Services;
 
 public class SpecialtyService(DoctorServiceContext context,
 							  ILogger<SpecialtyService> logger,
-							  ILogger<FileService.FileService> fileLogger,
 							  IValidator<AddSpecialtyDto> addValidator,
 							  IValidator<EditSpecialtyDto> editValidator,
 							  IValidator<AddFileDto> fileValidator) : ISpecialtyService, IDisposable
@@ -22,11 +21,10 @@ public class SpecialtyService(DoctorServiceContext context,
 
 	private ILogger<SpecialtyService> _logger { get; init; } = logger;
 	private readonly DoctorServiceContext _context = context;
-	private readonly FileService.FileService _fileService = new(fileValidator, fileLogger);
+	private readonly FileService.FileService _fileService = new(fileValidator);
 
 	private readonly IValidator<AddSpecialtyDto> _addValidator = addValidator;
 	private readonly IValidator<EditSpecialtyDto> _editValidator = editValidator;
-
 
 	public async Task<Result> GetAll()
 	{
@@ -34,17 +32,17 @@ public class SpecialtyService(DoctorServiceContext context,
 		return CustomResults.SuccessOperation(Specialties.Adapt<List<SpecialtyInfo>>());
 	}
 
-
 	public async Task<Result> Add(AddSpecialtyDto model)
 	{
+		ValidationResult validationResult = _addValidator.Validate(model);
+		if (!validationResult.IsValid)
+			return CustomErrors.InvalidData(validationResult.Errors);
+
+		Specialty specialty = model.Adapt<Specialty>();
+
 		try
 		{
-			ValidationResult validationResult = _addValidator.Validate(model);
-			if (!validationResult.IsValid)
-				return CustomErrors.InvalidData(validationResult.Errors);
-
-			Specialty specialty = model.Adapt<Specialty>();
-			Result fileResult = await _fileService.Add(new(specialty.Id, model.Image, "Specialty"));
+			Result fileResult = await _fileService.Add(new(specialty.Id, model.Image, "Speciality"));
 			if (!fileResult.Status)
 				return fileResult;
 
@@ -56,8 +54,8 @@ public class SpecialtyService(DoctorServiceContext context,
 		}
 		catch (Exception e)
 		{
-			_logger.LogDebug(e.Message, e);
-			// _fileService.Delete(specialty.ImagePath);
+			_fileService.Delete(specialty.ImagePath);
+			_logger.LogInformation(e.Message);
 			return CustomErrors.InternalServer();
 		}
 	}
